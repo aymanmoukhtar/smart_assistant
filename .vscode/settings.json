@@ -1,0 +1,10 @@
+{
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "${workspaceFolder}/.venv/bin/black",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintPath": "${workspaceFolder}/.venv/bin/pylint",
+    "[python]": {
+        "editor.defaultFormatter": "mikoz.black-py",
+    }
+}
