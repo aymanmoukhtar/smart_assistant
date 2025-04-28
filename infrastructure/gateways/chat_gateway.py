@@ -1,12 +1,12 @@
-import os
-
-from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import SystemMessage
 
-load_dotenv()
+from domain.models.chat_message import ChatMessage
+from infrastructure.app_config import AppConfig
 
-model = init_chat_model("gpt-4o-mini", model_provider="openai")
+model = init_chat_model(
+    "gpt-4o-mini", model_provider="openai", api_key=AppConfig.OPENAI_API_KEY
+)
 
 
 class ChatGateway:
@@ -35,5 +35,11 @@ class ChatGateway:
         """
         )
 
-    async def send_message(self, prompt: str) -> str:
-        return model.invoke([self.__system_message, HumanMessage(prompt)]).content
+    async def send_message(self, messages: list[ChatMessage]) -> str:
+        return model.invoke(
+            [self.__system_message]
+            + [
+                {"role": message.role.value, "content": message.content}
+                for message in messages
+            ]
+        ).content

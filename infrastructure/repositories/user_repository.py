@@ -1,10 +1,10 @@
 from fastapi import Depends
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.models.user import User
 from infrastructure.db.database import get_db
 from infrastructure.db.entities.user_entity import UserEntity
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UserRepository:
@@ -23,7 +23,9 @@ class UserRepository:
     async def find_by_id(self, id: str) -> User | None:
         result = await self.__db.execute(select(UserEntity).where(UserEntity.id == id))
         return (user := result.scalar_one_or_none()) and user.to_domain()
-    
+
     async def find_by_email(self, email: str) -> User | None:
-        result = await self.__db.execute(select(UserEntity).where(UserEntity.email == email))
+        result = await self.__db.execute(
+            select(UserEntity).where(UserEntity.email == email)
+        )
         return (user := result.scalar_one_or_none()) and user.to_domain()

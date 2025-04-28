@@ -4,7 +4,14 @@
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
     "python.linting.pylintPath": "${workspaceFolder}/.venv/bin/pylint",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always"
+    },
+    "python.analysis.fixAll" : ["source.unusedImports"],
     "[python]": {
         "editor.defaultFormatter": "mikoz.black-py",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "always"
+        }
     }
 }

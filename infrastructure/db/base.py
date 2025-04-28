@@ -1,16 +1,11 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from uuid import uuid4
 
 from asyncpg import Connection
-from infrastructure.app_config import app_config
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-
-def _get_unique_id(self, prefix):
-    global _uid
-    _uid += 1
-    return "__asyncpg_{}_{:x}__".format(prefix, _uid)
+from infrastructure.app_config import AppConfig
 
 
 class CConnection(Connection):
@@ -19,7 +14,7 @@ class CConnection(Connection):
 
 
 engine = create_async_engine(
-    app_config.DATABASE_URL,
+    AppConfig.DATABASE_URL,
     echo=True,
     future=True,
     connect_args={
