@@ -9,7 +9,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJheW1hbi5tb3VraHRhcjkwQGdtYWlsLmNvbSIsIm5hbWUiOiJBeW1hbiIsImlkIjoiYTFmMTA1YWEtMjU2Zi00NzYxLTk5MWUtYTJiMWRkZmNlNmFlIiwiZXhwIjoxNzQ2MDE3OTMwfQ.CZjq6lODwn_xSfP2Neg5Ki90Cfm4GeI55Mi-60NgDio", // 🔐 Replace with your actual token
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJheW1hbi5tb3VraHRhcjkwQGdtYWlsLmNvbSIsIm5hbWUiOiJBeW1hbiIsImlkIjoiYTFmMTA1YWEtMjU2Zi00NzYxLTk5MWUtYTJiMWRkZmNlNmFlIiwiZXhwIjoxNzQ2MDI5ODIxfQ.pZCoYHuZn1zzS-UVC6BQPsiH12JA61a19ArmsZ-M3ng"
             },
             body: JSON.stringify({
                 content: "Send me a couple of lines separated by newlines just to test",
@@ -29,8 +29,8 @@
                     done = streamDone;
 
                     if (value) {
-                        const chunk = decoder.decode(value);
-                        console.log(chunk)
+                        const jsons = decoder.decode(value).split("|||END|||").filter(_ => !!_);
+                        jsons.forEach(json => console.log(JSON.parse(json)));
                     }
                 }
 

@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
 from infrastructure.app_config import AppConfig
@@ -16,7 +15,7 @@ class User:
     password: str
 
     __pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    __ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    __ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
     def verify_password(self, plain_password: str) -> bool:
         return self.__pwd_context.verify(plain_password, self.password)

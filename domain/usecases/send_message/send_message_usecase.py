@@ -1,3 +1,4 @@
+import json
 import uuid
 from typing import AsyncGenerator
 
@@ -17,7 +18,9 @@ class SendMessageUseCase:
     ) -> None:
         self.__gateway = gateway
         self.__repository = repository
-
+        
+    __SEPARATOR = "|||END|||"
+    
     async def execute(
         self,
         user_id: str,
@@ -39,9 +42,11 @@ class SendMessageUseCase:
                 conversation=conversation
             )
 
-            yield f"TITLE: {conversation_title}"
+            yield json.dumps({ "event": "init", "conversation_id": str(conversation.id), "title": conversation_title }) + self.__SEPARATOR
+
         else:
             conversation = await self.__repository.find_by_id(request.conversation_id)
+            yield json.dumps({ "event": "init", "conversation_id": str(conversation.id), "title": conversation.title }) + self.__SEPARATOR
 
         user_message = ChatMessage(
             id=str(uuid.uuid4()),
@@ -53,18 +58,15 @@ class SendMessageUseCase:
 
         message_id = str(uuid.uuid4())
         full_reply = ""
-
+        
+        
         async for chunk in self.__gateway.stream_message(
             conversation.messages + [user_message]
         ):
-            yield f"DATA: {chunk}"
+            yield json.dumps({ "event": "chunk", "chunk": chunk }) + self.__SEPARATOR
             full_reply += chunk
-
-        yield f"FULL: {full_reply}"
-        yield f"\nDONE"
-
-        print(conversation_title)
-        print(full_reply)
+        
+        yield json.dumps({ "event": "end", "full_message": full_reply })
 
         await self.__repository.create_message(
             ChatMessage(
