@@ -29,7 +29,10 @@ class SendMessageUseCase:
                 [
                     ChatMessage(
                         id=str(uuid.uuid4()),
-                        content=f"Give me a title for an AI conversation based on this user message: {request.content}, don't type anything after or before, just return a 3-4 words title.",
+                        content=f"""
+                            Give me a title for an AI conversation based on this user message: {request.content}.
+                            Don't type anything after or before, just return a title that is not more than 6 words.
+                        """,
                         role=ChatRole.USER,
                         conversation_id="",
                     )
@@ -55,16 +58,26 @@ class SendMessageUseCase:
         )
         await self.__repository.create_message(user_message)
 
-        reply = await self.__gateway.send_message(
+        message_id = str(uuid.uuid4())
+        full_reply = ""
+        async for chunk in self.__gateway.stream_message(
             conversation.messages + [user_message]
-        )
-        reply_message = await self.__repository.create_message(
+        ):
+            chunk_message = ChatMessage(
+                id=message_id,
+                content=chunk,
+                role=ChatRole.ASSISTANT,
+                conversation_id=conversation.id,
+            )
+            full_reply += chunk
+
+        full_reply_message = await self.__repository.create_message(
             ChatMessage(
-                id=str(uuid.uuid4()),
-                content=reply,
+                id=message_id,
+                content=full_reply,
                 role=ChatRole.ASSISTANT,
                 conversation_id=conversation.id,
             )
         )
 
-        return reply_message
+        return full_reply_message

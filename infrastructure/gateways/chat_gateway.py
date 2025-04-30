@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage
 
@@ -43,3 +45,16 @@ class ChatGateway:
                 for message in messages
             ]
         ).content
+
+    async def stream_message(
+        self, messages: list[ChatMessage]
+    ) -> AsyncGenerator[str, str]:
+        chunks = model.astream(
+            [self.__system_message]
+            + [
+                {"role": message.role.value, "content": message.content}
+                for message in messages
+            ]
+        )
+        async for chunk in chunks:
+            yield chunk.content

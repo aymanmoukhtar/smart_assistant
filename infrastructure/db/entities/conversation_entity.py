@@ -15,16 +15,16 @@ class ConversationEntity(Base):
 
     messages = relationship("ChatMessageEntity", back_populates="conversation")
 
-    async def to_domain(self) -> Conversation:
+    def to_domain(self) -> Conversation:
         return Conversation(
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            messages=[],
+            messages=[message.to_domain() for message in self.messages],
         )
 
     @staticmethod
-    async def from_domain(model: Conversation):
+    def from_domain(model: Conversation):
         return ConversationEntity(
             id=model.id,
             title=model.title,

@@ -16,7 +16,6 @@ class User:
     password: str
 
     __pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    __oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
     __ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     def verify_password(self, plain_password: str) -> bool:

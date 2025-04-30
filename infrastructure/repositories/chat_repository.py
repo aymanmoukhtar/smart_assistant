@@ -1,6 +1,7 @@
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from domain.models.chat_message import ChatMessage
 from domain.models.conversation import Conversation
@@ -15,21 +16,23 @@ class ChatRepository:
         self.__db = db
 
     async def create_conversation(self, conversation: Conversation) -> User:
-        entity = await ConversationEntity.from_domain(conversation)
+        entity = ConversationEntity.from_domain(conversation)
 
         self.__db.add(entity)
         await self.__db.commit()
-        await self.__db.refresh(entity)
+        await self.__db.refresh(entity, ["messages"])
 
-        return await entity.to_domain()
+        return entity.to_domain()
 
     async def find_by_id(self, id: str) -> Conversation | None:
         result = await self.__db.execute(
-            select(ConversationEntity).where(ConversationEntity.id == id)
+            select(ConversationEntity)
+            .options(selectinload(ConversationEntity.messages))
+            .where(ConversationEntity.id == id)
         )
         return (
             conversation := result.scalar_one_or_none()
-        ) and await conversation.to_domain()
+        ) and conversation.to_domain()
 
     async def create_message(self, message: ChatMessage) -> ChatMessage:
         entity = ChatMessageEntity.from_domain(message)

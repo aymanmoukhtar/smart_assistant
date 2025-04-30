@@ -15,7 +15,7 @@ class CConnection(Connection):
 
 engine = create_async_engine(
     AppConfig.DATABASE_URL,
-    echo=True,
+    echo=False,
     future=True,
     connect_args={
         "connection_class": CConnection,
