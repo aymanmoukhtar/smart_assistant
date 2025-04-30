@@ -14,7 +14,7 @@ export const ChatSideBar = () => {
       disableAnimation
       hideCloseButton
       backdrop="transparent"
-      className="rounded-none "
+      className="rounded-none"
       isOpen={true}
       placement="left"
       size="xs"
