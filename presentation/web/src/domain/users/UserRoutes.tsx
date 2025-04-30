@@ -1,12 +1,13 @@
 import { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 
-const Chat = lazy(() => import("./features/Chat"));
+// Lazy-loaded components
+const Login = lazy(() => import("./features/Login"));
 
 export const ChatRoutes = () => (
   <Suspense>
     <Routes>
-      <Route element={<Chat />} path="/" />
+      <Route element={<Login />} path="/login" />
     </Routes>
   </Suspense>
 );

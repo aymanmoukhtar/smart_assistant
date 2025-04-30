@@ -1,11 +1,13 @@
-import { ConversationsList } from "./ConversationsList";
+import { ConversationsListEmptyState } from "./ConversationsListEmptyState";
 import { SidebarTools } from "./SidebarTools";
 
 export const ChatSideBar = () => {
   return (
-    <div className="bg-default-100">
-      <SidebarTools />
-      <ConversationsList />
-    </div>
+    <aside className="w-[20rem] flex flex-col bg-background rounded-lg shadow">
+      <div className="flex-none px-4">
+        <SidebarTools />
+      </div>
+      <ConversationsListEmptyState />
+    </aside>
   );
 };

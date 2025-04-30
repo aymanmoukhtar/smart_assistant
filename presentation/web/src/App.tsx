@@ -1,12 +1,15 @@
 import { lazy } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 const ChatRoutes = lazy(() => import("./domain/chat/ChatRoutes"));
+const UserRoutes = lazy(() => import("./domain/users/UserRoutes"));
 
 function App() {
   return (
     <Routes>
-      <Route element={<ChatRoutes />} path="/" />
+      <Route element={<ChatRoutes />} path="/chat" />
+      <Route element={<UserRoutes />} path="/user" />
+      <Route path="*" element={<Navigate to="/chat" replace />} />
     </Routes>
   );
 }

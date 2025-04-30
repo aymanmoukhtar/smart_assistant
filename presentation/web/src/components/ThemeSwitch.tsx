@@ -1,6 +1,6 @@
+import { useAppStore } from "@/domain/app.store";
 import { SwitchProps, useSwitch } from "@heroui/switch";
 import { Tooltip } from "@heroui/tooltip";
-import { useTheme } from "@heroui/use-theme";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 import clsx from "clsx";
 import {
@@ -20,7 +20,8 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
-  const { theme, setTheme } = useTheme();
+  const theme = useAppStore(state => state.theme);
+  const setTheme = useAppStore(state => state.userActions.setTheme);
 
   const {
     Component,

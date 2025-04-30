@@ -1,14 +1,12 @@
 import { Tooltip } from "@heroui/tooltip";
-import { PanelLeftCloseIcon, SquarePenIcon } from "lucide-react";
+import { SquarePenIcon } from "lucide-react";
 
 import { ThemeSwitch } from "../../../../components/ThemeSwitch";
 
 export const SidebarTools = () => (
   <div className="flex justify-between p-4">
     <div>
-      <Tooltip content="Close sidebar" placement="right">
-        <PanelLeftCloseIcon />
-      </Tooltip>
+      <span className="font-bold text-2xl">Chat</span>
     </div>
     <div className="flex gap-2 items-center">
       <ThemeSwitch />

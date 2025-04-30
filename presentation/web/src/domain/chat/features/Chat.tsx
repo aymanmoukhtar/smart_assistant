@@ -1,17 +1,20 @@
+
+
 import { ChatArea } from "../components/chat-area/ChatArea";
 import { ChatSideBar } from "../components/sidebar/ChatSidebar";
 
-const ChatLayout = () => {
+const Chat = () => {
   return (
-    <div className="flex h-dvh overflow-hidden">
-      <div className="w-64 min-w-[20rem] h-dvh">
-        <ChatSideBar />
-      </div>
-      <div className="w-full">
-        <ChatArea />
-      </div>
+    <div className="h-screen p-2 flex gap-2 bg-default-200">
+
+      {/* Sidebar */}
+      <ChatSideBar />
+
+      {/* Chat Area */}
+      <ChatArea />
+
     </div>
   );
 };
 
-export default ChatLayout;
+export default Chat;
