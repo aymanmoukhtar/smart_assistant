@@ -1,4 +1,6 @@
-from sqlalchemy import UUID, Column
+import datetime
+
+from sqlalchemy import UUID, Column, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import relationship
@@ -14,6 +16,7 @@ class ChatMessageEntity(Base):
     id = Column(UUID, primary_key=True, index=True)
     role = Column(SQLAlchemyEnum(ChatRole), nullable=False)
     content = Column(String, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     conversation_id = Column(
         UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False
     )
@@ -26,6 +29,7 @@ class ChatMessageEntity(Base):
             content=self.content,
             role=self.role,
             conversation_id=self.conversation_id,
+            created_at=self.created_at.isoformat(),
         )
 
     @staticmethod

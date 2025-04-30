@@ -1,4 +1,5 @@
 import uuid
+from typing import AsyncGenerator
 
 from fastapi import Depends
 
@@ -21,22 +22,12 @@ class SendMessageUseCase:
         self,
         user_id: str,
         request: SendMessageRequest,
-    ) -> str:
+    ) -> AsyncGenerator[str, None]:
         conversation: Conversation
 
         if not request.conversation_id:
-            conversation_title = await self.__gateway.send_message(
-                [
-                    ChatMessage(
-                        id=str(uuid.uuid4()),
-                        content=f"""
-                            Give me a title for an AI conversation based on this user message: {request.content}.
-                            Don't type anything after or before, just return a title that is not more than 6 words.
-                        """,
-                        role=ChatRole.USER,
-                        conversation_id="",
-                    )
-                ]
+            conversation_title = await self.__gateway.generate_prompt_title(
+                request.content
             )
             conversation = Conversation(
                 id=str(uuid.uuid4()),
@@ -47,6 +38,8 @@ class SendMessageUseCase:
             conversation = await self.__repository.create_conversation(
                 conversation=conversation
             )
+
+            yield f"TITLE: {conversation_title}"
         else:
             conversation = await self.__repository.find_by_id(request.conversation_id)
 
@@ -60,18 +53,20 @@ class SendMessageUseCase:
 
         message_id = str(uuid.uuid4())
         full_reply = ""
+
         async for chunk in self.__gateway.stream_message(
             conversation.messages + [user_message]
         ):
-            chunk_message = ChatMessage(
-                id=message_id,
-                content=chunk,
-                role=ChatRole.ASSISTANT,
-                conversation_id=conversation.id,
-            )
+            yield f"DATA: {chunk}"
             full_reply += chunk
 
-        full_reply_message = await self.__repository.create_message(
+        yield f"FULL: {full_reply}"
+        yield f"\nDONE"
+
+        print(conversation_title)
+        print(full_reply)
+
+        await self.__repository.create_message(
             ChatMessage(
                 id=message_id,
                 content=full_reply,
@@ -79,5 +74,3 @@ class SendMessageUseCase:
                 conversation_id=conversation.id,
             )
         )
-
-        return full_reply_message

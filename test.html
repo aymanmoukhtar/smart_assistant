@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+        const controller = new AbortController();
+
+        fetch("http://localhost:8000/chat/messages", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJheW1hbi5tb3VraHRhcjkwQGdtYWlsLmNvbSIsIm5hbWUiOiJBeW1hbiIsImlkIjoiYTFmMTA1YWEtMjU2Zi00NzYxLTk5MWUtYTJiMWRkZmNlNmFlIiwiZXhwIjoxNzQ2MDE3OTMwfQ.CZjq6lODwn_xSfP2Neg5Ki90Cfm4GeI55Mi-60NgDio", // 🔐 Replace with your actual token
+            },
+            body: JSON.stringify({
+                content: "Send me a couple of lines separated by newlines just to test",
+                conversation_id: ""
+            }),
+            signal: controller.signal,
+        })
+            .then(async (response) => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+
+                let done = false;
+                let buffer = "";
+
+                while (!done) {
+                    const { value, done: streamDone } = await reader.read();
+                    done = streamDone;
+
+                    if (value) {
+                        const chunk = decoder.decode(value);
+                        console.log(chunk)
+                    }
+                }
+
+                console.log("✅ Stream finished");
+            })
+            .catch((err) => {
+                console.error("❌ Stream error:", err);
+            });
+    </script>
+</body>
+
+</html>

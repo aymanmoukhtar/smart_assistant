@@ -37,14 +37,31 @@ class ChatGateway:
         """
         )
 
+    async def generate_prompt_title(self, message: str) -> str:
+        response = await model.ainvoke(
+            [
+                SystemMessage(
+                    """
+                          You're a helpful assistant that generates titles for conversations based on a single prompt
+                          Don't return anything other than the title. and it shouldn't be more than 6 words.
+                          """
+                ),
+                f"User prompt to return the title for: {message}",
+            ]
+        )
+
+        return response.content
+
     async def send_message(self, messages: list[ChatMessage]) -> str:
-        return model.invoke(
+        response = await model.ainvoke(
             [self.__system_message]
             + [
                 {"role": message.role.value, "content": message.content}
                 for message in messages
             ]
-        ).content
+        )
+
+        return response.content
 
     async def stream_message(
         self, messages: list[ChatMessage]

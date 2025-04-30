@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from domain.exceptions.domain_exception import DomainException
-from domain.exceptions.user_already_exists_exception import UserAlreadyExistsException
 from presentation.controllers.chat_controller import chat_router
 from presentation.controllers.user_controller import user_router
 
@@ -10,6 +10,13 @@ app = FastAPI(
     title="Smart Assistant",
     description="A FastAPI-based smart assistant application",
     version="0.1.0",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 🔓 Allow all origins (safe for dev only)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(chat_router)
