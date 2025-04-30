@@ -3,9 +3,8 @@ import { PanelLeftCloseIcon, SquarePenIcon } from "lucide-react";
 
 import { ThemeSwitch } from "../../../../components/ThemeSwitch";
 
-
 export const SidebarTools = () => (
-  <div className="flex justify-between">
+  <div className="flex justify-between p-4">
     <div>
       <Tooltip content="Close sidebar" placement="right">
         <PanelLeftCloseIcon />
