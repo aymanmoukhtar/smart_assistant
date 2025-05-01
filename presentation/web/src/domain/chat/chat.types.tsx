@@ -21,12 +21,14 @@ export interface InitMessage extends MessageEvent {
 
 export interface ChunkMessage extends MessageEvent {
   event: EventType;
+  message_id: string;
   chunk: string;
 }
 
 export interface EndMessage extends MessageEvent {
   event: EventType;
   full_message: string;
+  message_id: string;
 }
 
 export type Message = {
@@ -34,6 +36,12 @@ export type Message = {
   content: string;
   role: Role;
   created_at: string;
+};
+
+export type SendMessageRequest = {
+  id: string;
+  content: string;
+  conversation_id: string;
 };
 
 export type Conversation = {

@@ -41,7 +41,6 @@ class SendMessageUseCase:
             conversation = await self.__repository.create_conversation(
                 conversation=conversation
             )
-
             yield json.dumps(
                 {
                     "event": "init",
@@ -61,27 +60,28 @@ class SendMessageUseCase:
             ) + self.__SEPARATOR
 
         user_message = ChatMessage(
-            id=str(uuid.uuid4()),
+            id=request.id,
             content=request.content,
             role=ChatRole.USER,
             conversation_id=conversation.id,
         )
         await self.__repository.create_message(user_message)
 
-        message_id = str(uuid.uuid4())
         full_reply = ""
-
+        new_message_id = str(uuid.uuid4())
         async for chunk in self.__gateway.stream_message(
             conversation.messages + [user_message]
         ):
-            yield json.dumps({"event": "chunk", "chunk": chunk}) + self.__SEPARATOR
+            yield json.dumps(
+                {"event": "chunk", "chunk": chunk, "message_id": new_message_id}
+            ) + self.__SEPARATOR
             full_reply += chunk
 
-        yield json.dumps({"event": "end", "full_message": full_reply})
+        yield json.dumps({"event": "end", "full_message": full_reply, "message_id": new_message_id})
 
         await self.__repository.create_message(
             ChatMessage(
-                id=message_id,
+                id=new_message_id,
                 content=full_reply,
                 role=ChatRole.ASSISTANT,
                 conversation_id=conversation.id,

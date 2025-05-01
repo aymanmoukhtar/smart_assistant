@@ -18,8 +18,10 @@ engine = create_async_engine(
     echo=False,
     future=True,
     connect_args={
+        "statement_cache_size": 0,
         "connection_class": CConnection,
     },
+    pool_pre_ping=True,
 )
 
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

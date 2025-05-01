@@ -6,9 +6,15 @@ import { SidebarTools } from "./SidebarTools";
 
 export type ChatSideBarProps = {
   conversations: Conversation[];
+  selectedConversation?: Conversation;
+  setSelectedConversation: (conversation?: Conversation) => void;
 };
 
-export const ChatSideBar = ({ conversations }: ChatSideBarProps) => {
+export const ChatSideBar = ({
+  conversations,
+  selectedConversation,
+  setSelectedConversation,
+}: ChatSideBarProps) => {
   return (
     <aside className="w-[20rem] flex flex-col bg-background rounded-lg shadow">
       <div className="flex-none px-4">
@@ -16,7 +22,11 @@ export const ChatSideBar = ({ conversations }: ChatSideBarProps) => {
       </div>
       {conversations.length === 0 && <ConversationsListEmptyState />}
       {conversations.length !== 0 && (
-        <ConversationsList conversations={conversations} />
+        <ConversationsList
+          conversations={conversations}
+          selectedConversation={selectedConversation}
+          setSelectedConversation={setSelectedConversation}
+        />
       )}
     </aside>
   );
