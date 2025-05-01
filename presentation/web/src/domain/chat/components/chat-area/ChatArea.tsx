@@ -31,7 +31,7 @@ export const ChatArea = () => {
   const [prompt, setPrompt] = React.useState<string>("");
 
   return (
-    <main className="flex-1 flex flex-col bg-background rounded-lg shadow">
+    <main className="flex-1 flex flex-col bg-content1 rounded-lg shadow">
       {/* Chat top bar */}
       <div className="flex-none px-4 py-3">
         <span className="font-bold text-2xl">Smart Assistant</span>

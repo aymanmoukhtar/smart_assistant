@@ -1,6 +1,6 @@
-import { Tooltip } from "@heroui/tooltip";
-import { SquarePenIcon } from "lucide-react";
 
+import { AppIcon } from "@/uikit/AppIcon";
+import { Tooltip } from "@/uikit/Tooltip";
 import { ThemeSwitch } from "../../../../components/ThemeSwitch";
 
 export const SidebarTools = () => (
@@ -11,7 +11,7 @@ export const SidebarTools = () => (
     <div className="flex gap-2 items-center">
       <ThemeSwitch />
       <Tooltip content="Start a new chat" placement="right">
-        <SquarePenIcon />
+        <AppIcon icon="notepad-edit" size="2xl" />
       </Tooltip>
     </div>
   </div>

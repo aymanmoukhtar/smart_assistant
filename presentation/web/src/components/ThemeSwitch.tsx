@@ -1,12 +1,9 @@
 import { useAppStore } from "@/domain/app.store";
+import { AppIcon } from "@/uikit/AppIcon";
 import { SwitchProps, useSwitch } from "@heroui/switch";
 import { Tooltip } from "@heroui/tooltip";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 import clsx from "clsx";
-import {
-  MoonIcon as MoonFilledIcon,
-  SunMoonIcon as SunFilledIcon,
-} from "lucide-react";
 import { FC, useEffect, useState } from "react";
 
 export interface ThemeSwitchProps {
@@ -77,11 +74,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
       >
         {isSelected ? (
           <Tooltip content="Switch to dark mode" placement="left">
-            <MoonFilledIcon />
+            <AppIcon icon="moon" size="2xl" />
           </Tooltip>
         ) : (
           <Tooltip content="Switch to light mode" placement="left">
-            <SunFilledIcon />
+            <AppIcon icon="sun" size="2xl" />
           </Tooltip>
         )}
       </div>

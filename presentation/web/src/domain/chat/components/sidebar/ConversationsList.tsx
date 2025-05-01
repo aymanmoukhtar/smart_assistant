@@ -1,4 +1,4 @@
-import { Tooltip } from "@heroui/tooltip";
+import { Tooltip } from "@/uikit/Tooltip";
 import clsx from "clsx";
 
 export const ConversationsList = () => (

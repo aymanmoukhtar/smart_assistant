@@ -5,8 +5,10 @@ export default {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@heroui/theme/dist/components/(accordion|alert|autocomplete|avatar|badge|button|card|checkbox|chip|code|date-input|date-picker|divider|dropdown|form|input|kbd|link|listbox|modal|navbar|number-input|pagination|popover|progress|radio|scroll-shadow|select|skeleton|snippet|spinner|toggle|table|tabs|toast|user|ripple|calendar|menu|spacer).js',
   ],
+  safeList: ['ki-filled', 'ki-outline', 'ki-duotone', 'ki-solid'],
+
   theme: {
     extend: {
       fontFamily: {

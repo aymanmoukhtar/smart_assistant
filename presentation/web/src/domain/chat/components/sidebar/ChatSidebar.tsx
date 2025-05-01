@@ -1,4 +1,4 @@
-import { ConversationsListEmptyState } from "./ConversationsListEmptyState";
+import { ConversationsList } from "./ConversationsList";
 import { SidebarTools } from "./SidebarTools";
 
 export const ChatSideBar = () => {
@@ -7,7 +7,7 @@ export const ChatSideBar = () => {
       <div className="flex-none px-4">
         <SidebarTools />
       </div>
-      <ConversationsListEmptyState />
+      <ConversationsList />
     </aside>
   );
 };
