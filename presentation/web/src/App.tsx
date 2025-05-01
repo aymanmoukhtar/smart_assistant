@@ -7,9 +7,9 @@ const UserRoutes = lazy(() => import("./domain/users/UserRoutes"));
 function App() {
   return (
     <Routes>
-      <Route element={<ChatRoutes />} path="/chat" />
-      <Route element={<UserRoutes />} path="/user" />
-      <Route path="*" element={<Navigate to="/chat" replace />} />
+      <Route element={<ChatRoutes />} path="/chat/*" />
+      <Route element={<UserRoutes />} path="/user/*" />
+      <Route element={<Navigate replace to="/chat" />} path="*" />
     </Routes>
   );
 }

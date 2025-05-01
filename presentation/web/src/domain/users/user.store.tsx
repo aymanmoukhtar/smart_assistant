@@ -1,7 +1,9 @@
-import jwtDecode from 'jwt-decode';
-import { StateSlice, useAppStore } from '../app.store';
-import { userApi } from './user.api';
-import { SignupRequest, UserModel } from './user.types';
+import jwtDecode from "jwt-decode";
+
+import { StateSlice, useAppStore } from "../app.store";
+
+import { userApi } from "./user.api";
+import { SignupRequest, UserModel } from "./user.types";
 
 export type UserState = {
   user: UserModel | undefined;
@@ -10,13 +12,13 @@ export type UserState = {
   loginError?: string;
   signUpError?: string;
   isResendEmailVerificationSent?: boolean;
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   userActions: {
     login: (email: string, password: string) => Promise<void>;
     signup: (request: SignupRequest) => Promise<void>;
     logout: () => void;
     isSessionExpired: () => boolean;
-    setTheme: (theme: 'light' | 'dark') => void;
+    setTheme: (theme: "light" | "dark") => void;
   };
 };
 
@@ -26,7 +28,7 @@ export const createUserStore: StateSlice<UserState> = (set, get) => ({
   accessToken: undefined,
   loginError: undefined,
   signUpError: undefined,
-  theme: 'light',
+  theme: "light",
   userActions: {
     login: async (email: string, password: string) => {
       const { data, error } = await userApi.login(email, password);
@@ -35,28 +37,34 @@ export const createUserStore: StateSlice<UserState> = (set, get) => ({
         set({
           loginError: error,
         });
+
         return;
       }
 
       set({
-        user: { ...jwtDecode<UserModel>(data.accessToken) },
-        accessToken: data.accessToken,
+        user: { ...jwtDecode<UserModel>(data.access_token) },
+        accessToken: data.access_token,
         isUserLoggedIn: true,
-        loginError: '',
+        loginError: "",
       });
     },
     signup: async (request: SignupRequest) => {
-      const { error } = await userApi.signup(request);
+      const { error, data } = await userApi.signup(request);
 
       if (error) {
         set({
-          signUpError: error || 'Something went wrong',
+          signUpError: error || "Something went wrong",
         });
-        return;
+
+        throw error;
       }
 
       set({
-        signUpError: '',
+        user: { ...jwtDecode<UserModel>(data.access_token) },
+        accessToken: data.access_token,
+        isUserLoggedIn: true,
+        signUpError: "",
+        loginError: "",
       });
     },
     logout: () => {
@@ -71,11 +79,12 @@ export const createUserStore: StateSlice<UserState> = (set, get) => ({
 
       const currentTime = Math.floor(Date.now() / 1000); /// Current time in seconds
       const timeLeft = user.exp - currentTime; // Time left in seconds
+
       return timeLeft > 0 ? false : true; // Return 0 if expired
     },
-    setTheme: (theme: 'light' | 'dark') => {
+    setTheme: (theme: "light" | "dark") => {
       set({ theme });
-    }
+    },
   },
 });
 

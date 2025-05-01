@@ -1,10 +1,11 @@
-import { useAppStore } from "@/domain/app.store";
-import { AppIcon } from "@/uikit/AppIcon";
 import { SwitchProps, useSwitch } from "@heroui/switch";
 import { Tooltip } from "@heroui/tooltip";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 import clsx from "clsx";
 import { FC, useEffect, useState } from "react";
+
+import { useAppStore } from "@/domain/app.store";
+import { AppIcon } from "@/uikit/AppIcon";
 
 export interface ThemeSwitchProps {
   className?: string;
@@ -17,8 +18,8 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
-  const theme = useAppStore(state => state.theme);
-  const setTheme = useAppStore(state => state.userActions.setTheme);
+  const theme = useAppStore((state) => state.theme);
+  const setTheme = useAppStore((state) => state.userActions.setTheme);
 
   const {
     Component,

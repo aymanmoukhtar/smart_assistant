@@ -1,8 +1,14 @@
 import type { TextAreaProps } from "@heroui/react";
 
 import { Button, cn, Textarea } from "@heroui/react";
-import { SendIcon } from 'lucide-react';
 import React from "react";
+
+import { AppIcon } from "../../../../uikit/AppIcon";
+import { Message } from "../../chat.types";
+
+export type ChatAreaProps = {
+  messages: Message[];
+};
 
 // eslint-disable-next-line react/display-name
 export const PromptInput = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
@@ -10,6 +16,8 @@ export const PromptInput = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     return (
       <Textarea
         ref={ref}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
         aria-label="Prompt"
         className="min-h-[40px]"
         classNames={{
@@ -18,7 +26,7 @@ export const PromptInput = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           input: cn("py-0", classNames?.input),
         }}
         minRows={1}
-        placeholder="Enter a prompt here"
+        placeholder="Ask anything"
         radius="lg"
         variant="bordered"
         {...props}
@@ -27,8 +35,10 @@ export const PromptInput = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
   },
 );
 
-export const ChatArea = () => {
+export const ChatArea = ({ messages }: ChatAreaProps) => {
   const [prompt, setPrompt] = React.useState<string>("");
+
+  const isEmpty = messages.length === 0;
 
   return (
     <main className="flex-1 flex flex-col bg-content1 rounded-lg shadow">
@@ -36,47 +46,113 @@ export const ChatArea = () => {
       <div className="flex-none px-4 py-3">
         <span className="font-bold text-2xl">Smart Assistant</span>
       </div>
-      {/* Messages  */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 w-full flex flex-col">
-        <div className="self-end bg-default-200 rounded-lg px-3 py-2 max-w-xs">Hello!</div>
-        <div className="self-start rounded-lg px-3 py-2">Hi there! this is me responding to your shitHi there! this is me responding to your shit</div>
+
+      {/* Main content area */}
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto w-full p-4",
+          isEmpty
+            ? "flex flex-col items-center justify-center text-center"
+            : "space-y-4 flex flex-col",
+        )}
+      >
+        {isEmpty ? (
+          <>
+            <h2 className="text-2xl font-semibold mb-4">
+              Ask anything to get started
+            </h2>
+            <div className="w-full max-w-xl">
+              <Textarea
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                fullWidth
+                aria-label="Prompt"
+                classNames={{
+                  innerWrapper: "relative",
+                  input: "pt-1 pl-2 pb-6 !pr-10 text-medium",
+                }}
+                endContent={
+                  <div className="flex items-end gap-2">
+                    <Button
+                      isIconOnly
+                      color={!prompt ? "default" : "primary"}
+                      isDisabled={!prompt}
+                      size="sm"
+                      variant="solid"
+                    >
+                      <AppIcon icon="double-right-arrow" size="2xl" />
+                    </Button>
+                  </div>
+                }
+                minRows={1}
+                placeholder="Ask anything"
+                radius="lg"
+                value={prompt}
+                variant="bordered"
+                onKeyUp={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    setPrompt("");
+                  }
+                }}
+                onValueChange={setPrompt}
+              />
+            </div>
+          </>
+        ) : (
+          messages.map((msg, i) => (
+            <div
+              key={i}
+              className={cn(
+                msg.role === "user"
+                  ? "self-end bg-default-200"
+                  : "self-start bg-default-100",
+                "rounded-lg px-3 py-2 max-w-xs",
+              )}
+            >
+              {msg.content}
+            </div>
+          ))
+        )}
       </div>
-      {/* Prompt area  */}
-      <div className="flex-none p-4">
-        <form className="flex w-full flex-col items-start rounded-medium bg-default-100 transition-colors hover:bg-default-200/70">
-          <PromptInput
-            classNames={{
-              inputWrapper: "!bg-transparent shadow-none",
-              innerWrapper: "relative",
-              input: "pt-1 pl-2 pb-6 !pr-10 text-medium",
-            }}
-            endContent={
-              <div className="flex items-end gap-2">
-                <Button
-                  isIconOnly
-                  color={!prompt ? "default" : "primary"}
-                  isDisabled={!prompt}
-                  size="sm"
-                  variant="solid"
-                >
-                  <SendIcon />
-                </Button>
-              </div>
-            }
-            value={prompt}
-            onValueChange={setPrompt}
-            onKeyUp={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                console.log(prompt);
-                setPrompt("");
+
+      {/* Prompt area (only when messages exist) */}
+      {!isEmpty && (
+        <div className="flex-none p-4">
+          <form className="flex w-full flex-col items-start rounded-medium bg-default-100 transition-colors hover:bg-default-200/70">
+            <PromptInput
+              classNames={{
+                inputWrapper: "!bg-transparent shadow-none",
+                innerWrapper: "relative",
+                input: "pt-1 pl-2 pb-6 !pr-10 text-medium",
+              }}
+              endContent={
+                <div className="flex items-end gap-2">
+                  <Button
+                    isIconOnly
+                    color={!prompt ? "default" : "primary"}
+                    isDisabled={!prompt}
+                    size="sm"
+                    variant="solid"
+                  >
+                    <AppIcon icon="double-right-arrow" size="2xl" />
+                  </Button>
+                </div>
               }
-            }}
-            radius="lg"
-            variant="flat"
-          />
-        </form>
-      </div>
+              radius="lg"
+              value={prompt}
+              variant="flat"
+              onKeyUp={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  setPrompt("");
+                }
+              }}
+              onValueChange={setPrompt}
+            />
+          </form>
+        </div>
+      )}
     </main>
   );
 };

@@ -1,5 +1,6 @@
-import { useShallowAppStore } from '@/domain/app.store';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+
+import { useShallowAppStore } from "@/domain/app.store";
 
 const RequireAuth = () => {
   const [isUserLoggedIn, user] = useShallowAppStore((state) => [
@@ -10,7 +11,7 @@ const RequireAuth = () => {
 
   if (!isUserLoggedIn || !user) {
     return (
-      <Navigate to="/user/login" state={{ from: location.pathname }} replace />
+      <Navigate replace state={{ from: location.pathname }} to="/user/login" />
     );
   }
 
@@ -18,4 +19,3 @@ const RequireAuth = () => {
 };
 
 export { RequireAuth };
-

@@ -1,7 +1,7 @@
 from fastapi import Depends
 
 from domain.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from domain.models.user import User
+from domain.models.user_tokens import UserTokens
 from domain.usecases.create_user.create_user_request import CreateUserRequest
 from infrastructure.repositories.user_repository import UserRepository
 
@@ -13,14 +13,16 @@ class CreateUserUseCase:
     async def execute(
         self,
         request: CreateUserRequest,
-    ) -> User:
+    ) -> UserTokens:
         existing = await self.__repository.find_by_email(request.email)
 
         if existing:
             raise UserAlreadyExistsException(
-                f"User with email {request.email} already exists"
+                f"User already exists"
             )
 
         user = request.to_domain()
         user.password = user.get_password_hash()
-        await self.__repository.create(user)
+        created_user = await self.__repository.create(user)
+        
+        return UserTokens(access_token=created_user.create_access_token())

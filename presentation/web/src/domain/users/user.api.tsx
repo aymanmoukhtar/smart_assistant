@@ -1,5 +1,6 @@
-import { api } from '../common/axios';
-import { AuthModel, SignupRequest } from './user.types';
+import { api } from "../common/axios";
+
+import { AuthModel, SignupRequest } from "./user.types";
 
 export const userApi = {
   login: async (email: string, password: string) =>
@@ -9,5 +10,5 @@ export const userApi = {
     }),
 
   signup: async (request: SignupRequest) =>
-    await api.post<AuthModel>('/users/signup', request),
+    await api.post<AuthModel>("/users", request),
 };

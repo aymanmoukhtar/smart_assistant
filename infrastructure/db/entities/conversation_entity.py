@@ -22,13 +22,17 @@ class ConversationEntity(Base):
         order_by="ChatMessageEntity.created_at",
     )
 
-    def to_domain(self) -> Conversation:
+    def to_domain(self, include_messages: bool = True) -> Conversation:
         return Conversation(
             id=self.id,
             user_id=self.user_id,
             title=self.title,
             created_at=self.created_at.isoformat(),
-            messages=[message.to_domain() for message in self.messages],
+            messages=(
+                [message.to_domain() for message in self.messages]
+                if include_messages
+                else []
+            ),
         )
 
     @staticmethod

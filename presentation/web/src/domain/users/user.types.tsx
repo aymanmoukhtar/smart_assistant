@@ -1,5 +1,5 @@
 export interface AuthModel {
-  accessToken: string;
+  access_token: string;
 }
 
 export interface UserModel {

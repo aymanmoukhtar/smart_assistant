@@ -39,8 +39,8 @@ async def get_current_from_token(
 
 
 @user_router.post("", status_code=status.HTTP_201_CREATED)
-async def signup(request: CreateUserRequest, usecase: CreateUserUseCase = Depends()):
-    await usecase.execute(request=request)
+async def signup(request: CreateUserRequest, usecase: CreateUserUseCase = Depends()) -> UserTokens:
+    return await usecase.execute(request=request)
 
 
 @user_router.post("/login")
