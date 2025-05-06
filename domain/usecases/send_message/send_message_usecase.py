@@ -77,7 +77,9 @@ class SendMessageUseCase:
             ) + self.__SEPARATOR
             full_reply += chunk
 
-        yield json.dumps({"event": "end", "full_message": full_reply, "message_id": new_message_id})
+        yield json.dumps(
+            {"event": "end", "full_message": full_reply, "message_id": new_message_id}
+        )
 
         await self.__repository.create_message(
             ChatMessage(

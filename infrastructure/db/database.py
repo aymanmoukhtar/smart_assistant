@@ -2,7 +2,6 @@ from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import infrastructure.db.entities
 from infrastructure.db.base import AsyncSessionLocal, Base, engine
 
 

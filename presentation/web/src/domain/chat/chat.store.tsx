@@ -17,7 +17,9 @@ export type ChatState = {
     getConversations: () => Promise<void>;
     setConversations: (conversations: Conversation[]) => void;
     getMessages: (conversationId: string) => Promise<void>;
-    setMessages: (setter: (current?: Message[]) => Message[]) => void;
+    setMessages: (
+      setter: (current?: Message[]) => Message[] | undefined,
+    ) => void;
     sendMessage: (
       message: SendMessageRequest,
       onEvent: (event: MessageEvent) => void,
@@ -40,7 +42,7 @@ export const createChatStore: StateSlice<ChatState> = (set, get) => ({
       set({ messages: undefined });
       set({ messages: await chatApi.getMessages(conversationId) });
     },
-    setMessages: (setter: (current?: Message[]) => Message[]) => {
+    setMessages: (setter: (current?: Message[]) => Message[] | undefined) => {
       set((state) => ({ messages: setter(state.messages) }));
     },
     sendMessage: async (

@@ -18,7 +18,7 @@ class ChatMessageEntity(Base):
     content = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False, index=True
     )
 
     conversation = relationship("ConversationEntity", back_populates="messages")

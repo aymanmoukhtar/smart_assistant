@@ -63,4 +63,5 @@ class ChatRepository:
             .order_by(ChatMessageEntity.created_at)
         )
 
-        return [message.to_domain() for message in result.scalars().all()]
+        messages = result.scalars().all()  # Fetch all results
+        return [message.to_domain() for message in messages]

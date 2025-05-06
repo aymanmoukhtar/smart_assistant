@@ -19,7 +19,6 @@ class ConversationEntity(Base):
     messages = relationship(
         "ChatMessageEntity",
         back_populates="conversation",
-        order_by="ChatMessageEntity.created_at",
     )
 
     def to_domain(self, include_messages: bool = True) -> Conversation:

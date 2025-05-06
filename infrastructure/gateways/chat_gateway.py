@@ -1,20 +1,17 @@
 from typing import AsyncGenerator
 
+from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import SystemMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from domain.models.chat_message import ChatMessage
 from infrastructure.app_config import AppConfig
 
-model = init_chat_model(
+llm = init_chat_model(
     "gpt-4o-mini", model_provider="openai", api_key=AppConfig.OPENAI_API_KEY
 )
 
-
-class ChatGateway:
-    def __init__(self) -> None:
-        self.__system_message = SystemMessage(
-            """
+system_message = """
         You are a highly intelligent and professional AI assistant.
         Your primary goal is to help users by answering their questions accurately based on the provided document context and prior conversation history.
 
@@ -33,27 +30,34 @@ class ChatGateway:
 
         You are allowed to access tools if needed to complete tasks (such as searching, summarizing, or calculating).
 
-        Remain calm, helpful, and attentive to user needs at all times.
+        Remain calm, helpful, and attentive to user needs at all times. 
         """
-        )
+
+chat_agent = create_tool_calling_agent(
+    llm=llm,
+    tools=[],
+    prompt=ChatPromptTemplate.from_messages(
+        [
+            {"role": "system", "content": system_message},
+            MessagesPlaceholder("chat_history"),
+            {"role": "human", "content": "{input}"},
+            ("placeholder", "{agent_scratchpad}"),
+        ]
+    ),
+)
+
+agent_executor = AgentExecutor(agent=chat_agent, tools=[], verbose=True)
+
+
+class ChatGateway:
 
     async def generate_prompt_title(self, message: str) -> str:
-        response = await model.ainvoke(
-            [
-                SystemMessage(
-                    """
-                          You're a helpful assistant that generates titles for conversations based on a single prompt
-                          Don't return anything other than the title. and it shouldn't be more than 6 words.
-                          """
-                ),
-                f"User prompt to return the title for: {message}",
-            ]
-        )
+        response = "some_title"
 
-        return response.content
+        return response
 
     async def send_message(self, messages: list[ChatMessage]) -> str:
-        response = await model.ainvoke(
+        response = await chat_agent.ainvoke(
             [self.__system_message]
             + [
                 {"role": message.role.value, "content": message.content}
@@ -66,12 +70,18 @@ class ChatGateway:
     async def stream_message(
         self, messages: list[ChatMessage]
     ) -> AsyncGenerator[str, str]:
-        chunks = model.astream(
-            [self.__system_message]
-            + [
-                {"role": message.role.value, "content": message.content}
-                for message in messages
-            ]
+        chunks = agent_executor.astream_events(
+            {
+                "input": messages[-1].content,
+                "chat_history": [
+                    {"role": message.role.value, "content": message.content}
+                    for message in messages[:-1]
+                ],
+            }
         )
+
         async for chunk in chunks:
-            yield chunk.content
+            if chunk["event"] != "on_chat_model_stream":
+                continue
+
+            yield chunk["data"]["chunk"].content

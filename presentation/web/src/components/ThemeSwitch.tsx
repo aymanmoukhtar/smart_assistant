@@ -1,88 +1,41 @@
-import { SwitchProps, useSwitch } from "@heroui/switch";
 import { Tooltip } from "@heroui/tooltip";
-import { VisuallyHidden } from "@react-aria/visually-hidden";
-import clsx from "clsx";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
+import { Button } from "../uikit/Button";
 
 import { useAppStore } from "@/domain/app.store";
 import { AppIcon } from "@/uikit/AppIcon";
 
-export interface ThemeSwitchProps {
-  className?: string;
-  classNames?: SwitchProps["classNames"];
-}
-
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({
-  className,
-  classNames,
-}) => {
+export const ThemeSwitch = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   const theme = useAppStore((state) => state.theme);
   const setTheme = useAppStore((state) => state.userActions.setTheme);
 
-  const {
-    Component,
-    slots,
-    isSelected,
-    getBaseProps,
-    getInputProps,
-    getWrapperProps,
-  } = useSwitch({
-    isSelected: theme === "light",
-    onChange: () => setTheme(theme === "light" ? "dark" : "light"),
-  });
-
   useEffect(() => {
     setIsMounted(true);
   }, [isMounted]);
+
+  const onChange = () => setTheme(theme === "light" ? "dark" : "light");
 
   // Prevent Hydration Mismatch
   if (!isMounted) return <div className="w-6 h-6" />;
 
   return (
-    <Component
-      aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
-      {...getBaseProps({
-        className: clsx(
-          "px-px transition-opacity hover:opacity-80 cursor-pointer",
-          className,
-          classNames?.base,
-        ),
-      })}
-    >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: clsx(
-            [
-              "w-auto h-auto",
-              "bg-transparent",
-              "rounded-lg",
-              "flex items-center justify-center",
-              "group-data-[selected=true]:bg-transparent",
-              "!text-foreground",
-              "pt-px",
-              "px-0",
-              "mx-0",
-            ],
-            classNames?.wrapper,
-          ),
-        })}
-      >
-        {isSelected ? (
+    <>
+      {theme === "light" ? (
+        <Button isIconOnly variant="light" onPress={onChange}>
           <Tooltip content="Switch to dark mode" placement="left">
             <AppIcon icon="moon" size="2xl" />
           </Tooltip>
-        ) : (
+        </Button>
+      ) : (
+        <Button isIconOnly variant="light" onPress={onChange}>
           <Tooltip content="Switch to light mode" placement="left">
             <AppIcon icon="sun" size="2xl" />
           </Tooltip>
-        )}
-      </div>
-    </Component>
+        </Button>
+      )}
+    </>
   );
 };

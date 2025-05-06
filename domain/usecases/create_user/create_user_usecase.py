@@ -17,12 +17,10 @@ class CreateUserUseCase:
         existing = await self.__repository.find_by_email(request.email)
 
         if existing:
-            raise UserAlreadyExistsException(
-                f"User already exists"
-            )
+            raise UserAlreadyExistsException(f"User already exists")
 
         user = request.to_domain()
         user.password = user.get_password_hash()
         created_user = await self.__repository.create(user)
-        
+
         return UserTokens(access_token=created_user.create_access_token())

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { useShallowAppStore } from "../../app.store";
@@ -35,6 +35,16 @@ const Chat = () => {
 
   const [streamingMessage, setStreamingMessage] = useState("");
 
+  const messagesEndRef = useRef<any>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Auto-scroll when messages change (conversation loaded) or when streaming
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, streamingMessage]);
+
   useEffect(() => {
     if (conversations) {
       return;
@@ -43,51 +53,54 @@ const Chat = () => {
     getConversations();
   }, []);
 
-  const onEvent = (event: MessageEvent) => {
-    if (event.event === EventType.INIT) {
-      const initEvent = event as InitMessage;
+  const onEvent = useCallback(
+    (event: MessageEvent) => {
+      if (event.event === EventType.INIT) {
+        const initEvent = event as InitMessage;
 
-      if (selectedConversation) {
+        if (selectedConversation) {
+          return;
+        }
+
+        const newConversation = {
+          id: initEvent.conversation_id,
+          title: initEvent.title,
+          created_at: new Date().toISOString(),
+        };
+
+        setConversations([newConversation, ...(conversations || [])]);
+        setSelectedConversation(newConversation);
+
         return;
       }
 
-      const newConversation = {
-        id: initEvent.conversation_id,
-        title: initEvent.title,
-        created_at: new Date().toISOString(),
-      };
+      if (event.event === EventType.CHUNK) {
+        const chunkEvent = event as ChunkMessage;
 
-      setConversations([newConversation, ...(conversations || [])]);
-      setSelectedConversation(newConversation);
+        setStreamingMessage((_) => _ + chunkEvent.chunk);
 
-      return;
-    }
+        return;
+      }
 
-    if (event.event === EventType.CHUNK) {
-      const chunkEvent = event as ChunkMessage;
+      if (event.event === EventType.END) {
+        const endEvent = event as EndMessage;
 
-      setStreamingMessage((_) => _ + chunkEvent.chunk);
+        setMessages((_) => [
+          ...(_ || []),
+          {
+            id: endEvent.message_id,
+            content: endEvent.full_message,
+            role: Role.ASSISTANT,
+            created_at: "",
+          },
+        ]);
+        setStreamingMessage("");
 
-      return;
-    }
-
-    if (event.event === EventType.END) {
-      const endEvent = event as EndMessage;
-
-      setMessages((_) => [
-        ...(_ || []),
-        {
-          id: endEvent.message_id,
-          content: endEvent.full_message,
-          role: Role.ASSISTANT,
-          created_at: "",
-        },
-      ]);
-      setStreamingMessage("");
-
-      return;
-    }
-  };
+        return;
+      }
+    },
+    [conversations, selectedConversation],
+  );
 
   const send = (message: string) => {
     const chatMessage: Message = {
@@ -122,9 +135,15 @@ const Chat = () => {
             getMessages(conversation.id);
           }
         }}
+        onStartNewChatClick={() => {
+          setSelectedConversation(undefined);
+          setMessages((_) => undefined);
+        }}
       />
       <ChatArea
         messages={messages || []}
+        messagesEndRef={messagesEndRef}
+        selectedConversation={selectedConversation}
         sendMessage={send}
         streamingMessage={streamingMessage}
       />
