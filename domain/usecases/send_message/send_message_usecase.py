@@ -8,16 +8,24 @@ from domain.models.chat_message import ChatMessage
 from domain.models.chat_role import ChatRole
 from domain.models.conversation import Conversation
 from domain.usecases.send_message.send_message_request import SendMessageRequest
-from infrastructure.gateways.chat_gateway import ChatGateway
+from infrastructure.agents.conversation_agent import ConversationAgent
+from infrastructure.agents.html_converter_agent import HTMLConverterAgent
+from infrastructure.agents.title_agent import TitleGeneratorAgent
 from infrastructure.repositories.chat_repository import ChatRepository
 
 
 class SendMessageUseCase:
     def __init__(
-        self, gateway: ChatGateway = Depends(), repository: ChatRepository = Depends()
+        self,
+        repository: ChatRepository = Depends(),
+        title_generator: TitleGeneratorAgent = Depends(),
+        conversation_agent: ConversationAgent = Depends(),
+        html_converter_agent: HTMLConverterAgent = Depends()
     ) -> None:
-        self.__gateway = gateway
         self.__repository = repository
+        self.__title_generator = title_generator
+        self.__conversation_agent = conversation_agent
+        self.__html_converter_agent = html_converter_agent
 
     __SEPARATOR = "|||END|||"
 
@@ -29,9 +37,7 @@ class SendMessageUseCase:
         conversation: Conversation
 
         if not request.conversation_id:
-            conversation_title = await self.__gateway.generate_prompt_title(
-                request.content
-            )
+            conversation_title = await self.__title_generator.execute(request.content)
             conversation = Conversation(
                 id=str(uuid.uuid4()),
                 user_id=user_id,
@@ -65,22 +71,23 @@ class SendMessageUseCase:
             role=ChatRole.USER,
             conversation_id=conversation.id,
         )
-        await self.__repository.create_message(user_message)
 
         full_reply = ""
         new_message_id = str(uuid.uuid4())
-        async for chunk in self.__gateway.stream_message(
+        async for chunk in self.__conversation_agent.execute(
             conversation.messages + [user_message]
         ):
-            yield json.dumps(
-                {"event": "chunk", "chunk": chunk, "message_id": new_message_id}
-            ) + self.__SEPARATOR
-            full_reply += chunk
+            async for html_chunk in self.__html_converter_agent.execute(chunk):
+                yield json.dumps(
+                    {"event": "chunk", "chunk": html_chunk, "message_id": new_message_id}
+                ) + self.__SEPARATOR
+                full_reply += html_chunk
 
         yield json.dumps(
             {"event": "end", "full_message": full_reply, "message_id": new_message_id}
         )
 
+        await self.__repository.create_message(user_message),
         await self.__repository.create_message(
             ChatMessage(
                 id=new_message_id,

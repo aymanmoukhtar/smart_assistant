@@ -146,6 +146,8 @@ export const ChatArea = ({
                 "rounded-lg px-3 py-2 leading-relaxed text-pretty",
               )}
             >
+              <div dangerouslySetInnerHTML={{ __html: msg.content }} />
+
               <Markdown
                 components={markdownComponents}
                 remarkPlugins={[remarkGfm]}
@@ -175,7 +177,7 @@ export const ChatArea = ({
       </div>
 
       {(!isEmpty || !!selectedConversation) && (
-        <div className="flex-none p-4">
+        <div className="flex-none p-4 w-[70%] self-center">
           <Textarea
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
